@@ -1,0 +1,400 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard" data-role="music_director">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h3>Music Director Dashboard</h3>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a href="#projects" class="sidebar-link active">Projects</a></li>
+            <li class="sidebar-item"><a href="#music-tools" class="sidebar-link">Music Tools</a></li>
+            <li class="sidebar-item"><a href="#ai-assistant" class="sidebar-link">AI Assistant</a></li>
+            <li class="sidebar-item"><a href="#version-control" class="sidebar-link">Version Control</a></li>
+            <li class="sidebar-item"><a href="#team" class="sidebar-link">Team</a></li>
+        </ul>
+    </aside>
+    
+    <div class="content">
+        <!-- Projects Section -->
+        <section id="projects" class="content-section">
+            <div class="section-header">
+                <h2>My Projects</h2>
+                <button class="btn btn-primary" id="create-workspace-btn">New Project</button>
+            </div>
+            
+            <div class="projects-grid">
+                {% for project in projects %}
+                <div class="card workspace-card">
+                    <div class="workspace-header">
+                        <h3 class="workspace-title">{{ project.title }}</h3>
+                        <span class="project-status">{{ project.status }}</span>
+                    </div>
+                    <p class="project-description">{{ project.description }}</p>
+                    <div class="project-meta">
+                        <span class="project-date">Last edited: {{ project.last_edited }}</span>
+                        <span class="project-members">{{ project.members }} members</span>
+                    </div>
+                    <div class="project-actions">
+                        <button class="btn btn-secondary">Open</button>
+                        <button class="btn btn-accent invite-btn" data-workspace-id="{{ project.id }}">Invite</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        
+        <!-- Music Tools Section -->
+        <section id="music-tools" class="content-section" style="display: none;">
+            <h2>Music Tools</h2>
+            
+            <div class="tools-panel">
+                <div class="tools-header">
+                    <h3 class="tools-title">Audio Composition</h3>
+                </div>
+                <div class="tools-grid">
+                    <div class="tool-item">
+                        <i class="fas fa-music tool-icon"></i>
+                        <span class="tool-name">Composer</span>
+                    </div>
+                    <div class="tool-item">
+                        <i class="fas fa-sliders-h tool-icon"></i>
+                        <span class="tool-name">Mixer</span>
+                    </div>
+                    <div class="tool-item">
+                        <i class="fas fa-drum tool-icon"></i>
+                        <span class="tool-name">Instruments</span>
+                    </div>
+                    <div class="tool-item">
+                        <i class="fas fa-microphone-alt tool-icon"></i>
+                        <span class="tool-name">Voice Over</span>
+                    </div>
+                    <div class="tool-item">
+                        <i class="fas fa-wave-square tool-icon"></i>
+                        <span class="tool-name">Sound Effects</span>
+                    </div>
+                    <div class="tool-item">
+                        <i class="fas fa-volume-up tool-icon"></i>
+                        <span class="tool-name">Mastering</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tools-panel">
+                <div class="tools-header">
+                    <h3 class="tools-title">Audio Timeline</h3>
+                </div>
+                <div class="card">
+                    <div class="timeline-container">
+                        <div class="timeline-header">
+                            <span>00:00</span>
+                            <span>00:30</span>
+                            <span>01:00</span>
+                            <span>01:30</span>
+                            <span>02:00</span>
+                            <span>02:30</span>
+                            <span>03:00</span>
+                        </div>
+                        <div class="timeline-tracks">
+                            <div class="timeline-track">
+                                <div class="track-label">Main Score</div>
+                                <div class="track-content">
+                                    <div class="audio-clip" style="left: 10%; width: 40%;">
+                                        <span>Opening Theme</span>
+                                    </div>
+                                    <div class="audio-clip" style="left: 60%; width: 30%;">
+                                        <span>Transition</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-track">
+                                <div class="track-label">Sound FX</div>
+                                <div class="track-content">
+                                    <div class="audio-clip" style="left: 15%; width: 5%;">
+                                        <span>Door</span>
+                                    </div>
+                                    <div class="audio-clip" style="left: 45%; width: 5%;">
+                                        <span>Glass</span>
+                                    </div>
+                                    <div class="audio-clip" style="left: 75%; width: 10%;">
+                                        <span>Footsteps</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-track">
+                                <div class="track-label">Dialogue</div>
+                                <div class="track-content">
+                                    <div class="audio-clip" style="left: 20%; width: 15%;">
+                                        <span>Scene 1</span>
+                                    </div>
+                                    <div class="audio-clip" style="left: 50%; width: 20%;">
+                                        <span>Scene 2</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-controls">
+                        <button class="btn btn-secondary"><i class="fas fa-play"></i></button>
+                        <button class="btn btn-secondary"><i class="fas fa-pause"></i></button>
+                        <button class="btn btn-secondary"><i class="fas fa-stop"></i></button>
+                        <button class="btn btn-secondary"><i class="fas fa-redo"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tools-panel">
+                <div class="tools-header">
+                    <h3 class="tools-title">Sound Library</h3>
+                </div>
+                <div class="card">
+                    <div class="library-search">
+                        <input type="text" placeholder="Search sounds..." class="form-input">
+                        <button class="btn btn-secondary"><i class="fas fa-search"></i></button>
+                    </div>
+                    <div class="library-categories">
+                        <button class="btn btn-secondary active">All</button>
+                        <button class="btn btn-secondary">Orchestral</button>
+                        <button class="btn btn-secondary">Electronic</button>
+                        <button class="btn btn-secondary">Ambient</button>
+                        <button class="btn btn-secondary">Sound FX</button>
+                    </div>
+                    <div class="library-items">
+                        <div class="library-item">
+                            <span class="item-name">Dramatic Strings</span>
+                            <span class="item-duration">01:45</span>
+                            <div class="item-actions">
+                                <button class="btn btn-sm"><i class="fas fa-play"></i></button>
+                                <button class="btn btn-sm"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <div class="library-item">
+                            <span class="item-name">Suspense Build</span>
+                            <span class="item-duration">00:35</span>
+                            <div class="item-actions">
+                                <button class="btn btn-sm"><i class="fas fa-play"></i></button>
+                                <button class="btn btn-sm"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <div class="library-item">
+                            <span class="item-name">Gentle Piano</span>
+                            <span class="item-duration">02:10</span>
+                            <div class="item-actions">
+                                <button class="btn btn-sm"><i class="fas fa-play"></i></button>
+                                <button class="btn btn-sm"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <div class="library-item">
+                            <span class="item-name">Action Percussion</span>
+                            <span class="item-duration">01:20</span>
+                            <div class="item-actions">
+                                <button class="btn btn-sm"><i class="fas fa-play"></i></button>
+                                <button class="btn btn-sm"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- AI Assistant Section -->
+        <section id="ai-assistant" class="content-section" style="display: none;">
+            <h2>AI Assistant</h2>
+            
+            <div class="ai-assistant">
+                <div class="ai-header">
+                    <i class="fas fa-robot ai-icon"></i>
+                    <h3 class="ai-title">Music AI Assistant</h3>
+                </div>
+                
+                <div class="ai-content">
+                    <p>Ask me anything about music composition, sound design, or get suggestions for your current project.</p>
+                </div>
+                
+                <div class="ai-output">
+                    <!-- AI responses will appear here -->
+                </div>
+                
+                <form class="ai-form">
+                    <div class="ai-input">
+                        <input type="text" placeholder="Ask the AI assistant...">
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h3 class="card-title">AI Music Generation</h3>
+                <div class="form-group">
+                    <label class="form-label">Music Style</label>
+                    <select class="form-input">
+                        <option>Orchestral</option>
+                        <option>Electronic</option>
+                        <option>Ambient</option>
+                        <option>Jazz</option>
+                        <option>Rock</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mood</label>
+                    <select class="form-input">
+                        <option>Dramatic</option>
+                        <option>Uplifting</option>
+                        <option>Melancholic</option>
+                        <option>Tense</option>
+                        <option>Peaceful</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Duration</label>
+                    <input type="range" min="15" max="180" value="60" class="form-range">
+                    <span class="range-value">60 seconds</span>
+                </div>
+                <button class="btn btn-primary">Generate Music</button>
+            </div>
+        </section>
+        
+        <!-- Version Control Section -->
+        <section id="version-control" class="content-section" style="display: none;">
+            <h2>Version Control</h2>
+            
+            <div class="card">
+                <div class="version-control-header">
+                    <h3 class="card-title">Current Project: Project Name</h3>
+                    <div class="version-control-actions">
+                        <button class="btn btn-primary" id="commit-changes">Commit Changes</button>
+                        <button class="btn btn-secondary" id="revert-changes">Revert Changes</button>
+                    </div>
+                </div>
+                
+                <div class="version-status">
+                    <p><strong>Status:</strong> 2 uncommitted changes</p>
+                </div>
+                
+                <div class="changes-list">
+                    <div class="change-item">
+                        <span class="change-type">Modified</span>
+                        <span class="change-file">main_theme.mp3</span>
+                        <span class="change-time">15 minutes ago</span>
+                    </div>
+                    <div class="change-item">
+                        <span class="change-type">Added</span>
+                        <span class="change-file">sound_effects.mp3</span>
+                        <span class="change-time">30 minutes ago</span>
+                    </div>
+                </div>
+                
+                <div class="version-history-header">
+                    <h4>Version History</h4>
+                    <button class="btn btn-secondary" id="version-history-btn">Show History</button>
+                </div>
+                
+                <div id="version-history" style="display: none;">
+                    <div class="version-item">
+                        <div class="version-info">
+                            <span class="version-id">v1.3</span>
+                            <span class="version-date">May 20, 2025</span>
+                            <span class="version-author">Mike Johnson</span>
+                        </div>
+                        <p class="version-message">Adjusted volume levels and added new background music</p>
+                        <button class="btn btn-secondary btn-sm">Restore</button>
+                    </div>
+                    <div class="version-item">
+                        <div class="version-info">
+                            <span class="version-id">v1.2</span>
+                            <span class="version-date">May 18, 2025</span>
+                            <span class="version-author">Mike Johnson</span>
+                        </div>
+                        <p class="version-message">Added sound effects for scene transitions</p>
+                        <button class="btn btn-secondary btn-sm">Restore</button>
+                    </div>
+                    <div class="version-item">
+                        <div class="version-info">
+                            <span class="version-id">v1.1</span>
+                            <span class="version-date">May 15, 2025</span>
+                            <span class="version-author">Mike Johnson</span>
+                        </div>
+                        <p class="version-message">Initial music composition</p>
+                        <button class="btn btn-secondary btn-sm">Restore</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Team Section -->
+        <section id="team" class="content-section" style="display: none;">
+            <h2>Team Members</h2>
+            
+            <div class="team-grid">
+                <div class="profile-card">
+                    <img src="{{ url_for('static', filename='images/avatar-placeholder.png') }}" alt="Team Member" class="profile-avatar">
+                    <div class="profile-info">
+                        <h3 class="profile-name">John Doe</h3>
+                        <p class="profile-role">Director</p>
+                        <p class="profile-details">Project lead and final decision maker</p>
+                    </div>
+                </div>
+                
+                <div class="profile-card">
+                    <img src="{{ url_for('static', filename='images/avatar-placeholder.png') }}" alt="Team Member" class="profile-avatar">
+                    <div class="profile-info">
+                        <h3 class="profile-name">Jane Smith</h3>
+                        <p class="profile-role">Editor</p>
+                        <p class="profile-details">Responsible for video editing and effects</p>
+                    </div>
+                </div>
+                
+                <div class="profile-card">
+                    <img src="{{ url_for('static', filename='images/avatar-placeholder.png') }}" alt="Team Member" class="profile-avatar">
+                    <div class="profile-info">
+                        <h3 class="profile-name">Mike Johnson</h3>
+                        <p class="profile-role">Music Director</p>
+                        <p class="profile-details">Handles all audio and music composition</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="team-actions">
+                <button class="btn btn-primary">Message Team</button>
+                <button class="btn btn-secondary">Schedule Meeting</button>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Create Workspace Modal -->
+<div id="create-workspace-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Create New Project</h2>
+            <span class="close-btn">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="create-workspace-form">
+                <div class="form-group">
+                    <label class="form-label">Project Name</label>
+                    <input type="text" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-input" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Project Type</label>
+                    <select class="form-input">
+                        <option>Film</option>
+                        <option>Commercial</option>
+                        <option>Music Video</option>
+                        <option>Documentary</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Create Project</button>
+                    <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

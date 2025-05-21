@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard" data-role="editor">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h3>Editor Dashboard</h3>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a href="#projects" class="sidebar-link active">Projects</a></li>
+            <li class="sidebar-item"><a href="#editing-tools" class="sidebar-link">Editing Tools</a></li>
+            <li class="sidebar-item"><a href="#ai-assistant" class="sidebar-link">AI Assistant</a></li>
+            <li class="sidebar-item"><a href="#version-control" class="sidebar-link">Version Control</a></li>
+            <li class="sidebar-item"><a href="#team" class="sidebar-link">Team</a></li>
+        </ul>
+    </aside>
+    
+    <div class="content">
+        <!-- Projects Section -->
+        <section id="projects" class="content-section">
+            <div class="section-header">
+                <h2>My Projects</h2>
+                <button class="btn btn-primary" id="create-workspace-btn">New Project</button>
+            </div>
+            
+            <div class="projects-grid">
+                {% for project in projects %}
+                <div class="card workspace-card">
+                    <div class="workspace-header">
+                        <h3 class="workspace-title">{{ project.title }}</h3>
+                        <span class="project-status">{{ project.status }}</span>
+                    </div>
+                    <p class="project-description">{{ project.description }}</p>
+                    <div class="project-meta">
+                        <span class="project-date">Last edited: {{ project.last_edited }}</span>
+                        <span class="project-members">{{ project.members }} members</span>
+                    </div>
+                    <div class="project-actions">
+                        <button class="btn btn-secondary">Open</button>
+                        <button class="btn btn-accent invite-btn" data-workspace-id="{{ project.id }}">Invite</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        
+        <!-- Editing Tools Section -->
+        <section id="editing-tools" class="content-section" style="display: none;">
+            <h2>Editing Tools</h2>
+            
+            <div class="tools-panel">
+                <div class="tools-header">
+                    <h3 class="tools-title">Video Editing</h3>
+                </div>
+                <div class="tools-grid">
+                    <div class="tool-item">
+                        <i class="fas fa-cut tool-icon"></i>
+                        <span class="tool-name">Cut & Trim</span>
+                    </div>
+                    <div class="tool-item">
+                        <i class="fas fa-layer-group tool-icon"></i>
+                        <span class="tool-name">Layers</span>
+                    </div>
+                    <div class="tool-item">
+                        <i class="fas fa-film tool-icon"></i>
+                        <span class="tool-name">Timeline</span>
+                    </div>
+                    <div class="tool-item">
+                        <i class="fas fa-palette tool-icon"></i>
+                        <span class="tool-name">Color Grading</span>
+                    </div>
+                    <div class="tool-item">
+                        <i class="fas fa-volume-up tool-icon"></i>
+                        <span class="tool-name">Audio Mixing</span>
+                    </div>
+                    <div class="tool-item">
+                        <i class="fas fa-magic tool-icon"></i>
+                        <span class="tool-name">Effects</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tools-panel">
+                <div class="tools-header">
+                    <h3 class="tools-title">Work Parameters</h3>
+                </div>
+                <div class="card">
+                    <div class="parameter-controls">
+                        <div class="form-group">
+                            <label class="form-label">Resolution</label>
+                            <select class="form-input">
+                                <option>4K (3840x2160)</option>
+                                <option>1080p (1920x1080)</option>
+                                <option>720p (1280x720)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Frame Rate</label>
+                            <select class="form-input">
+                                <option>24 fps</option>
+                                <option>30 fps</option>
+                                <option>60 fps</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Aspect Ratio</label>
+                            <select class="form-input">
+                                <option>16:9</option>
+                                <option>4:3</option>
+                                <option>21:9</option>
+                                <option>1:1</option>
+                                <option>9:16</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tools-panel">
+                <div class="tools-header">
+                    <h3 class="tools-title">Performance Graphs</h3>
+                </div>
+                <div class="card">
+                    <div class="graph-container">
+                        <img src="{{ url_for('static', filename='images/placeholder-graph.png') }}" alt="Performance Graph" class="graph-image">
+                    </div>
+                    <div class="graph-controls">
+                        <button class="btn btn-secondary">CPU Usage</button>
+                        <button class="btn btn-secondary">Memory Usage</button>
+                        <button class="btn btn-secondary">Rendering Time</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- AI Assistant Section -->
+        <section id="ai-assistant" class="content-section" style="display: none;">
+            <h2>AI Assistant</h2>
+            
+            <div class="ai-assistant">
+                <div class="ai-header">
+                    <i class="fas fa-robot ai-icon"></i>
+                    <h3 class="ai-title">Gemini AI Assistant</h3>
+                </div>
+                
+                <div class="ai-content">
+                    <p>Ask me anything about video editing, effects, or get suggestions for your current project.</p>
+                </div>
+                
+                <div class="ai-output">
+                    <!-- AI responses will appear here -->
+                </div>
+                
+                <form class="ai-form">
+                    <div class="ai-input">
+                        <input type="text" placeholder="Ask the AI assistant...">
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h3 class="card-title">AI Suggestions</h3>
+                <div class="suggestions-list">
+                    <div class="suggestion-item">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>Try adjusting the color temperature to create a warmer atmosphere for sunset scenes.</p>
+                    </div>
+                    <div class="suggestion-item">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>Consider adding a subtle vignette effect to draw focus to the center of your composition.</p>
+                    </div>
+                    <div class="suggestion-item">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>The audio levels in scene 3 could be balanced better. Try reducing background noise.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Version Control Section -->
+        <section id="version-control" class="content-section" style="display: none;">
+            <h2>Version Control</h2>
+            
+            <div class="card">
+                <div class="version-control-header">
+                    <h3 class="card-title">Current Project: Project Name</h3>
+                    <div class="version-control-actions">
+                        <button class="btn btn-primary" id="commit-changes">Commit Changes</button>
+                        <button class="btn btn-secondary" id="revert-changes">Revert Changes</button>
+                    </div>
+                </div>
+                
+                <div class="version-status">
+                    <p><strong>Status:</strong> 3 uncommitted changes</p>
+                </div>
+                
+                <div class="changes-list">
+                    <div class="change-item">
+                        <span class="change-type">Modified</span>
+                        <span class="change-file">scene_1.mp4</span>
+                        <span class="change-time">10 minutes ago</span>
+                    </div>
+                    <div class="change-item">
+                        <span class="change-type">Added</span>
+                        <span class="change-file">background_music.mp3</span>
+                        <span class="change-time">25 minutes ago</span>
+                    </div>
+                    <div class="change-item">
+                        <span class="change-type">Modified</span>
+                        <span class="change-file">opening_credits.txt</span>
+                        <span class="change-time">45 minutes ago</span>
+                    </div>
+                </div>
+                
+                <div class="version-history-header">
+                    <h4>Version History</h4>
+                    <button class="btn btn-secondary" id="version-history-btn">Show History</button>
+                </div>
+                
+                <div id="version-history" style="display: none;">
+                    <div class="version-item">
+                        <div class="version-info">
+                            <span class="version-id">v1.3</span>
+                            <span class="version-date">May 20, 2025</span>
+                            <span class="version-author">John Doe</span>
+                        </div>
+                        <p class="version-message">Added new transition effects and fixed audio sync issues</p>
+                        <button class="btn btn-secondary btn-sm">Restore</button>
+                    </div>
+                    <div class="version-item">
+                        <div class="version-info">
+                            <span class="version-id">v1.2</span>
+                            <span class="version-date">May 18, 2025</span>
+                            <span class="version-author">Jane Smith</span>
+                        </div>
+                        <p class="version-message">Updated color grading for all scenes</p>
+                        <button class="btn btn-secondary btn-sm">Restore</button>
+                    </div>
+                    <div class="version-item">
+                        <div class="version-info">
+                            <span class="version-id">v1.1</span>
+                            <span class="version-date">May 15, 2025</span>
+                            <span class="version-author">John Doe</span>
+                        </div>
+                        <p class="version-message">Initial edit with rough cuts</p>
+                        <button class="btn btn-secondary btn-sm">Restore</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Team Section -->
+        <section id="team" class="content-section" style="display: none;">
+            <h2>Team Members</h2>
+            
+            <div class="team-grid">
+                <div class="profile-card">
+                    <img src="{{ url_for('static', filename='images/avatar-placeholder.png') }}" alt="Team Member" class="profile-avatar">
+                    <div class="profile-info">
+                        <h3 class="profile-name">John Doe</h3>
+                        <p class="profile-role">Director</p>
+                        <p class="profile-details">Project lead and final decision maker</p>
+                    </div>
+                </div>
+                
+                <div class="profile-card">
+                    <img src="{{ url_for('static', filename='images/avatar-placeholder.png') }}" alt="Team Member" class="profile-avatar">
+                    <div class="profile-info">
+                        <h3 class="profile-name">Jane Smith</h3>
+                        <p class="profile-role">Editor</p>
+                        <p class="profile-details">Responsible for video editing and effects</p>
+                    </div>
+                </div>
+                
+                <div class="profile-card">
+                    <img src="{{ url_for('static', filename='images/avatar-placeholder.png') }}" alt="Team Member" class="profile-avatar">
+                    <div class="profile-info">
+                        <h3 class="profile-name">Mike Johnson</h3>
+                        <p class="profile-role">Music Director</p>
+                        <p class="profile-details">Handles all audio and music composition</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="team-actions">
+                <button class="btn btn-primary">Message Team</button>
+                <button class="btn btn-secondary">Schedule Meeting</button>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Create Workspace Modal -->
+<div id="create-workspace-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Create New Project</h2>
+            <span class="close-btn">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="create-workspace-form">
+                <div class="form-group">
+                    <label class="form-label">Project Name</label>
+                    <input type="text" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-input" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Project Type</label>
+                    <select class="form-input">
+                        <option>Film</option>
+                        <option>Commercial</option>
+                        <option>Music Video</option>
+                        <option>Documentary</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Create Project</button>
+                    <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

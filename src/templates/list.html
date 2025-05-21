@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="section-header">
+        <h1>My Workspaces</h1>
+        <button class="btn btn-primary" id="create-workspace-btn">Create New Workspace</button>
+    </div>
+    
+    <div class="workspaces-grid">
+        {% for workspace in workspaces %}
+        <div class="card workspace-card">
+            <div class="workspace-header">
+                <h3 class="workspace-title">{{ workspace.name }}</h3>
+                <span class="workspace-role">{{ workspace.role }}</span>
+            </div>
+            <p class="workspace-description">{{ workspace.description }}</p>
+            <div class="workspace-meta">
+                <span class="workspace-date">Created: {{ workspace.created_at }}</span>
+                <span class="workspace-members">{{ workspace.member_count }} members</span>
+            </div>
+            <div class="workspace-actions">
+                <a href="/workspaces/{{ workspace.id }}" class="btn btn-secondary">Open</a>
+                <button class="btn btn-accent invite-btn" data-workspace-id="{{ workspace.id }}">Invite</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="workspace-invites">
+        <h2>Pending Invites</h2>
+        
+        {% if invites %}
+        <div class="invites-list">
+            {% for invite in invites %}
+            <div class="invite-card">
+                <div class="invite-info">
+                    <h3 class="invite-title">{{ invite.workspace_name }}</h3>
+                    <p class="invite-description">{{ invite.workspace_description }}</p>
+                    <p class="invite-from">From: {{ invite.from_user }}</p>
+                    <p class="invite-expires">Expires: {{ invite.expires_at }}</p>
+                </div>
+                <div class="invite-actions">
+                    <button class="btn btn-primary accept-invite-btn" data-invite-id="{{ invite.id }}">Accept</button>
+                    <button class="btn btn-secondary decline-invite-btn" data-invite-id="{{ invite.id }}">Decline</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>No pending invites</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Create Workspace Modal -->
+<div id="create-workspace-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Create New Workspace</h2>
+            <span class="close-btn">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="create-workspace-form">
+                <div class="form-group">
+                    <label class="form-label">Workspace Name</label>
+                    <input type="text" class="form-input" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-input" name="description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Project Type</label>
+                    <select class="form-input" name="project_type">
+                        <option value="film">Film</option>
+                        <option value="commercial">Commercial</option>
+                        <option value="music_video">Music Video</option>
+                        <option value="documentary">Documentary</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Create Workspace</button>
+                    <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Invite Modal -->
+<div id="invite-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Invite to Workspace</h2>
+            <span class="close-btn">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="invite-options">
+                <div class="invite-option">
+                    <h3>Invite by Email</h3>
+                    <div class="form-group">
+                        <input type="email" class="form-input" id="invite-email" placeholder="Enter email address">
+                        <button class="btn btn-primary" id="send-email-invite">Send Invite</button>
+                    </div>
+                </div>
+                
+                <div class="invite-option">
+                    <h3>Generate Invite Link</h3>
+                    <p>Create a link that anyone can use to join this workspace.</p>
+                    <div class="form-group">
+                        <label class="form-label">Link Expiry</label>
+                        <select class="form-input" id="invite-expiry">
+                            <option value="1">1 day</option>
+                            <option value="7" selected>7 days</option>
+                            <option value="30">30 days</option>
+                            <option value="never">Never expires</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" id="generate-invite-link">Generate Link</button>
+                </div>
+            </div>
+            
+            <div id="invite-link-container" style="display: none;">
+                <h3>Invite Link</h3>
+                <div class="invite-link-box">
+                    <input type="text" class="form-input" id="invite-link" readonly>
+                    <button class="btn btn-secondary" id="copy-invite-link">Copy</button>
+                </div>
+                <p class="invite-link-expiry">This link will expire on <span id="invite-link-expiry-date"></span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Create workspace modal
+        const createWorkspaceBtn = document.getElementById('create-workspace-btn');
+        const createWorkspaceModal = document.getElementById('create-workspace-modal');
+        const closeCreateModalBtn = createWorkspaceModal.querySelector('.close-btn');
+        const cancelCreateBtn = createWorkspaceModal.querySelector('.cancel-btn');
+        
+        createWorkspaceBtn.addEventListener('click', function() {
+            createWorkspaceModal.style.display = 'block';
+        });
+        
+        closeCreateModalBtn.addEventListener('click', function() {
+            createWorkspaceModal.style.display = 'none';
+        });
+        
+        cancelCreateBtn.addEventListener('click', function() {
+            createWorkspaceModal.style.display = 'none';
+        });
+        
+        window.addEventListener('click', function(e) {
+            if (e.target === createWorkspaceModal) {
+                createWorkspaceModal.style.display = 'none';
+            }
+        });
+        
+        // Create workspace form
+        const createWorkspaceForm = document.getElementById('create-workspace-form');
+        
+        createWorkspaceForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(createWorkspaceForm);
+            const workspaceData = {
+                name: formData.get('name'),
+                description: formData.get('description'),
+                project_type: formData.get('project_type')
+            };
+            
+            // In a real app, this would send data to the server
+            // For now, we'll simulate a response
+            console.log('Creating workspace:', workspaceData);
+            alert('Workspace created successfully!');
+            createWorkspaceModal.style.display = 'none';
+            
+            // Optionally, refresh the page or add the new workspace to the list
+            // location.reload();
+        });
+        
+        // Invite modal
+        const inviteBtns = document.querySelectorAll('.invite-btn');
+        const inviteModal = document.getElementById('invite-modal');
+        const closeInviteModalBtn = inviteModal.querySelector('.close-btn');
+        
+        inviteBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const workspaceId = this.dataset.workspaceId;
+                // Store the workspace ID for use in the invite process
+                inviteModal.dataset.workspaceId = workspaceId;
+                inviteModal.style.display = 'block';
+            });
+        });
+        
+        closeInviteModalBtn.addEventListener('click', function() {
+            inviteModal.style.display = 'none';
+        });
+        
+        window.addEventListener('click', function(e) {
+            if (e.target === inviteModal) {
+                inviteModal.style.display = 'none';
+            }
+        });
+        
+        // Email invite
+        const sendEmailInviteBtn = document.getElementById('send-email-invite');
+        const inviteEmailInput = document.getElementById('invite-email');
+        
+        sendEmailInviteBtn.addEventListener('click', function() {
+            const email = inviteEmailInput.value.trim();
+            const workspaceId = inviteModal.dataset.workspaceId;
+            
+            if (!email) {
+                alert('Please enter an email address');
+                return;
+            }
+            
+            // In a real app, this would send data to the server
+            console.log('Sending invite to:', email, 'for workspace:', workspaceId);
+            alert(`Invite sent to ${email}`);
+            inviteEmailInput.value = '';
+        });
+        
+        // Generate invite link
+        const generateInviteLinkBtn = document.getElementById('generate-invite-link');
+        const inviteExpirySelect = document.getElementById('invite-expiry');
+        const inviteLinkContainer = document.getElementById('invite-link-container');
+        const inviteLinkInput = document.getElementById('invite-link');
+        const inviteLinkExpiryDate = document.getElementById('invite-link-expiry-date');
+        const copyInviteLinkBtn = document.getElementById('copy-invite-link');
+        
+        generateInviteLinkBtn.addEventListener('click', function() {
+            const workspaceId = inviteModal.dataset.workspaceId;
+            const expiryDays = inviteExpirySelect.value;
+            
+            // In a real app, this would send data to the server
+            // For now, we'll simulate a response
+            console.log('Generating invite link for workspace:', workspaceId, 'expiry:', expiryDays);
+            
+            // Generate a fake invite link
+            const inviteCode = Math.random().toString(36).substring(2, 15);
+            const inviteLink = `${window.location.origin}/invite/${workspaceId}/${inviteCode}`;
+            
+            // Calculate expiry date
+            let expiryDate = '';
+            if (expiryDays !== 'never') {
+                const date = new Date();
+                date.setDate(date.getDate() + parseInt(expiryDays));
+                expiryDate = date.toLocaleDateString();
+            } else {
+                expiryDate = 'Never';
+            }
+            
+            // Display the invite link
+            inviteLinkInput.value = inviteLink;
+            inviteLinkExpiryDate.textContent = expiryDate;
+            inviteLinkContainer.style.display = 'block';
+        });
+        
+        copyInviteLinkBtn.addEventListener('click', function() {
+            inviteLinkInput.select();
+            document.execCommand('copy');
+            alert('Invite link copied to clipboard!');
+        });
+        
+        // Accept/decline invite
+        const acceptInviteBtns = document.querySelectorAll('.accept-invite-btn');
+        const declineInviteBtns = document.querySelectorAll('.decline-invite-btn');
+        
+        acceptInviteBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const inviteId = this.dataset.inviteId;
+                
+                // In a real app, this would send data to the server
+                console.log('Accepting invite:', inviteId);
+                alert('Invite accepted! You have been added to the workspace.');
+                
+                // Remove the invite card
+                this.closest('.invite-card').remove();
+            });
+        });
+        
+        declineInviteBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const inviteId = this.dataset.inviteId;
+                
+                // In a real app, this would send data to the server
+                console.log('Declining invite:', inviteId);
+                alert('Invite declined.');
+                
+                // Remove the invite card
+                this.closest('.invite-card').remove();
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="section-header">
+        <h1>Login</h1>
+        <p>Sign in to access your account</p>
+    </div>
+    
+    <div class="auth-container">
+        <div class="card">
+            <form id="login-form" class="auth-form" action="javascript:void(0);">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-input" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" name="password" required>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-block">Login</button>
+                </div>
+                
+                <div class="auth-links">
+                    <p>Don't have an account? <a href="/register">Register</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="login-message" class="alert alert-info" style="display: none; margin-top: 20px; padding: 10px; border-radius: 5px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;">
+        Logging in... You will be redirected to your dashboard.
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginForm = document.getElementById('login-form');
+        const loginMessage = document.getElementById('login-message');
+        
+        if (loginForm) {
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form data directly from inputs
+                const username = document.querySelector('input[name="username"]').value;
+                const password = document.querySelector('input[name="password"]').value;
+                
+                console.log('Login attempt with username:', username);
+                
+                // Show login message
+                loginMessage.style.display = 'block';
+                
+                // Store user data in localStorage for demo purposes
+                localStorage.setItem('user_role', username.toLowerCase().includes('editor') ? 'editor' : 
+                                    (username.toLowerCase().includes('music') ? 'music_director' : 'director'));
+                localStorage.setItem('username', username);
+                localStorage.setItem('is_logged_in', 'true');
+                
+                // Determine which dashboard to redirect to based on username
+                let dashboardUrl = '/director/dashboard';
+                if (username.toLowerCase().includes('editor')) {
+                    dashboardUrl = '/editor/dashboard';
+                } else if (username.toLowerCase().includes('music')) {
+                    dashboardUrl = '/music_director/dashboard';
+                }
+                
+                // Redirect to appropriate dashboard after a short delay
+                console.log('Redirecting to:', dashboardUrl);
+                setTimeout(function() {
+                    window.location.href = dashboardUrl;
+                }, 1500);
+            });
+        } else {
+            console.error('Login form not found');
+        }
+        
+        // Check if user is already logged in
+        if (localStorage.getItem('is_logged_in') === 'true') {
+            const role = localStorage.getItem('user_role');
+            let dashboardUrl = '/director/dashboard';
+            if (role === 'editor') {
+                dashboardUrl = '/editor/dashboard';
+            } else if (role === 'music_director') {
+                dashboardUrl = '/music_director/dashboard';
+            }
+            console.log('User already logged in, redirecting to:', dashboardUrl);
+            window.location.href = dashboardUrl;
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="section-header">
+        <h1>Community</h1>
+        <p>Connect with other professionals in the film and media industry</p>
+    </div>
+    
+    <div class="community-filters">
+        <div class="filter-group">
+            <label for="role-filter">Filter by Role:</label>
+            <select id="role-filter" class="form-input">
+                <option value="all">All Roles</option>
+                <option value="director">Director</option>
+                <option value="editor">Editor</option>
+                <option value="music_director">Music Director</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label for="search-filter">Search:</label>
+            <input type="text" id="search-filter" class="form-input" placeholder="Search by name or skills...">
+        </div>
+    </div>
+    
+    <div class="community-grid">
+        {% for member in community_members %}
+        <div class="profile-card" data-role="{{ member.role }}">
+            <img src="{{ url_for('static', filename=member.profile_image) }}" alt="{{ member.name }}" class="profile-avatar">
+            <div class="profile-info">
+                <h3 class="profile-name">{{ member.name }}</h3>
+                <p class="profile-role">{{ member.role_display }}</p>
+                <p class="profile-details">{{ member.bio }}</p>
+                <div class="profile-skills">
+                    {% for skill in member.skills %}
+                    <span class="skill-tag">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="profile-actions">
+                <button class="btn btn-primary view-profile-btn" data-id="{{ member.id }}">View Profile</button>
+                <button class="btn btn-secondary message-btn" data-id="{{ member.id }}">Message</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="join-community-section">
+        <div class="card">
+            <h2>Join Our Community</h2>
+            <p>Share your role and expertise with other professionals in the industry.</p>
+            
+            <form id="join-community-form">
+                <div class="form-group">
+                    <label class="form-label">Your Role</label>
+                    <select class="form-input" name="role" required>
+                        <option value="">Select your role</option>
+                        <option value="director">Director</option>
+                        <option value="editor">Editor</option>
+                        <option value="music_director">Music Director</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Skills (comma separated)</label>
+                    <input type="text" class="form-input" name="skills" placeholder="e.g., Color Grading, Sound Design, Storytelling">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Bio</label>
+                    <textarea class="form-input" name="bio" rows="3" placeholder="Tell us about yourself and your experience"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Update Profile</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Modal -->
+<div id="profile-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>User Profile</h2>
+            <span class="close-btn">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="profile-detail">
+                <img src="" alt="Profile" class="profile-detail-avatar">
+                <div class="profile-detail-info">
+                    <h3 class="profile-detail-name"></h3>
+                    <p class="profile-detail-role"></p>
+                    <p class="profile-detail-bio"></p>
+                    
+                    <div class="profile-detail-skills">
+                        <h4>Skills</h4>
+                        <div class="skills-container"></div>
+                    </div>
+                    
+                    <div class="profile-detail-projects">
+                        <h4>Recent Projects</h4>
+                        <ul class="projects-list"></ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-detail-actions">
+                <button class="btn btn-primary message-btn">Send Message</button>
+                <button class="btn btn-secondary invite-btn">Invite to Project</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filter functionality
+        const roleFilter = document.getElementById('role-filter');
+        const searchFilter = document.getElementById('search-filter');
+        const profileCards = document.querySelectorAll('.profile-card');
+        
+        function applyFilters() {
+            const roleValue = roleFilter.value;
+            const searchValue = searchFilter.value.toLowerCase();
+            
+            profileCards.forEach(card => {
+                const role = card.dataset.role;
+                const name = card.querySelector('.profile-name').textContent.toLowerCase();
+                const bio = card.querySelector('.profile-details').textContent.toLowerCase();
+                const skillTags = Array.from(card.querySelectorAll('.skill-tag')).map(tag => tag.textContent.toLowerCase());
+                
+                const matchesRole = roleValue === 'all' || role === roleValue;
+                const matchesSearch = searchValue === '' || 
+                                     name.includes(searchValue) || 
+                                     bio.includes(searchValue) || 
+                                     skillTags.some(skill => skill.includes(searchValue));
+                
+                card.style.display = matchesRole && matchesSearch ? 'flex' : 'none';
+            });
+        }
+        
+        roleFilter.addEventListener('change', applyFilters);
+        searchFilter.addEventListener('input', applyFilters);
+        
+        // Profile modal functionality
+        const profileModal = document.getElementById('profile-modal');
+        const closeBtn = profileModal.querySelector('.close-btn');
+        const viewProfileBtns = document.querySelectorAll('.view-profile-btn');
+        
+        viewProfileBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const userId = this.dataset.id;
+                // In a real app, this would fetch user data from the server
+                // For now, we'll use dummy data
+                const userData = {
+                    name: this.closest('.profile-card').querySelector('.profile-name').textContent,
+                    role: this.closest('.profile-card').querySelector('.profile-role').textContent,
+                    bio: this.closest('.profile-card').querySelector('.profile-details').textContent,
+                    avatar: this.closest('.profile-card').querySelector('.profile-avatar').src,
+                    skills: Array.from(this.closest('.profile-card').querySelectorAll('.skill-tag')).map(tag => tag.textContent),
+                    projects: ['Summer Campaign', 'Product Launch Video', 'Corporate Documentary']
+                };
+                
+                // Populate modal with user data
+                profileModal.querySelector('.profile-detail-name').textContent = userData.name;
+                profileModal.querySelector('.profile-detail-role').textContent = userData.role;
+                profileModal.querySelector('.profile-detail-bio').textContent = userData.bio;
+                profileModal.querySelector('.profile-detail-avatar').src = userData.avatar;
+                
+                const skillsContainer = profileModal.querySelector('.skills-container');
+                skillsContainer.innerHTML = '';
+                userData.skills.forEach(skill => {
+                    const skillTag = document.createElement('span');
+                    skillTag.className = 'skill-tag';
+                    skillTag.textContent = skill;
+                    skillsContainer.appendChild(skillTag);
+                });
+                
+                const projectsList = profileModal.querySelector('.projects-list');
+                projectsList.innerHTML = '';
+                userData.projects.forEach(project => {
+                    const projectItem = document.createElement('li');
+                    projectItem.textContent = project;
+                    projectsList.appendChild(projectItem);
+                });
+                
+                profileModal.style.display = 'block';
+            });
+        });
+        
+        closeBtn.addEventListener('click', function() {
+            profileModal.style.display = 'none';
+        });
+        
+        window.addEventListener('click', function(e) {
+            if (e.target === profileModal) {
+                profileModal.style.display = 'none';
+            }
+        });
+        
+        // Join community form
+        const joinForm = document.getElementById('join-community-form');
+        
+        joinForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // In a real app, this would send data to the server
+            alert('Profile updated successfully!');
+        });
+    });
+</script>
+{% endblock %}
